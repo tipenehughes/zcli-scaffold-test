@@ -76,7 +76,7 @@ export default class New extends Command {
     })
   }
 
-  modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string, authorURL?: string) {
+  modifyManifest (directoryName: string, appName: string, authorName: string, authorEmail: string, flagScaffold: string, location: string, authorURL?: string ) {
     const manifestPath: ManifestPath = {
       basic: path.join(process.cwd(), directoryName),
       react: path.join(process.cwd(), directoryName, 'src')
@@ -86,6 +86,17 @@ export default class New extends Command {
     manifest.name = appName
     manifest.author.name = authorName
     manifest.author.email = authorEmail
+
+    console.log(location.split(','));
+
+    location.split(',').map((locationItem) => {
+      const locationObject = {
+        "url": `assets/${locationItem}.html`,
+        "flexible": true
+      }
+      manifest.location.support[locationItem] = locationObject
+      });
+
 
     if (authorURL?.trim()) {
       manifest.author.url = authorURL
@@ -115,7 +126,8 @@ export default class New extends Command {
       console.log(chalk.red('Invalid location(s) entered. Please enter a valid location(s).'))
       location = await CliUx.ux.prompt('Enter the location(s) this app will appear (e.g. ticket_sidebar, top_bar, etc.)')
     }
-    
+    console.log(location);
+
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
     let authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
@@ -144,7 +156,7 @@ export default class New extends Command {
       throw new CLIError(chalk.red(`Download of scaffold structure failed with error: ${err}`))
     }
 
-    this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, authorURL)
+    this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, location, authorURL )
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
