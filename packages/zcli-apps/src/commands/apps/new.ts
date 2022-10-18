@@ -82,19 +82,20 @@ export default class New extends Command {
       react: path.join(process.cwd(), directoryName, 'src')
     }
     const manifest = getManifestFile(manifestPath[flagScaffold])
-
+    
     manifest.name = appName
     manifest.author.name = authorName
     manifest.author.email = authorEmail
 
-    console.log(location.split(','));
 
+    // Create array of locations and add location objects to manifest
     location.split(',').map((locationItem) => {
+      const trimmedLocation = locationItem.trim()
       const locationObject = {
-        "url": `assets/${locationItem}.html`,
+        "url": `assets/${trimmedLocation}.html`,
         "flexible": true
       }
-      manifest.location.support[locationItem] = locationObject
+      manifest.location.support[trimmedLocation] = locationObject
       });
 
 
@@ -107,12 +108,20 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
+  modifyWebpack (directoryName: string) {
+    const webpackPath = path.join(process.cwd(), 'webpack.config.js')
+    const webpackConfig = fs.readFileSync(webpackPath, 'utf8')
+    const newWebpackConfig = webpackConfig.replace(/app\.html/g, 'assets/app.html')
+    fs.writeFileSync(webpackPath, newWebpackConfig)
+  }
+
   checkLocations (locations: string) {
     const locationsArray = locations.split(',');
     const trimmedLocationsArray = locationsArray.map((location) => location.trim());
-    console.log(trimmedLocationsArray);
+
     const validLocations = ['top_bar', 'nav_bar', 'ticket_sidebar', 'new_ticket_sidebar', 'user_sidebar', 'organization_sidebar', 'modal', 'ticket_editor']
     const invalidLocations = trimmedLocationsArray.filter((location) => !validLocations.includes(location))
+
     return invalidLocations.length > 0 ? false : true;
   }
 
