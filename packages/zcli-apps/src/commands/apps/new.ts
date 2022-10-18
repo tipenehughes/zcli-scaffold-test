@@ -114,19 +114,45 @@ export default class New extends Command {
 
     const webpackFile = getWebpackFile(webpackPath)
 
-    const htmlWebpackPlugin =
-      `new HtmlWebpackPlugin({
-			  warning:
-				  "AUTOMATICALLY GENERATED FROM ./src/templates/${location}.html - DO NOT MODIFY THIS FILE DIRECTLY",
-			  vendorCss: externalAssets.css.filter((path) => !!path),
-			  vendorJs: externalAssets.js,
-			  template: "./src/locations/${location}/iframe.html",
-			  filename: "${location}.html",
-		  })`
+    let htmlWebpackPluginArr: any = [];
+    let entryPathArr: any = [];
 
+    // Create array of locations, populate templates based on location,
+    // push templates to htmlWebpackPluginArr and entryPathArr
+    location.split(',').map((locationItem) => {
+      const trimmedLocation = locationItem.trim()
 
+      const htmlWebpackPluginTemplate =
+        `new HtmlWebpackPlugin({
+          warning:
+            "AUTOMATICALLY GENERATED FROM ./src/templates/${trimmedLocation}.html - DO NOT MODIFY THIS FILE DIRECTLY",
+          vendorCss: externalAssets.css.filter((path) => !!path),
+          vendorJs: externalAssets.js,
+          template: "./src/locations/${trimmedLocation}/iframe.html",
+          filename: "${trimmedLocation}.html",
+        })
+      `
+      const entryPathTemplate = `${trimmedLocation}: ["./src/locations/${trimmedLocation}/index.js", "./src/index.css"]
+      `
 
-    const webpackUpdated = webpackFile.replace("new HtmlWebpackPlugin", htmlWebpackPlugin);
+      entryPathArr.push(entryPathTemplate)
+      htmlWebpackPluginArr.push(htmlWebpackPluginTemplate);
+    });
+
+    // Format entryPathArr into correct shape for webpack
+    const entryPath = `entry: {
+      ${entryPathArr.toString()}
+    }`
+
+    // Searches webpack config for keywords and replaces with new values
+    // provided in htmlWebpackPluginArr and entryPath
+    const mapObj = {
+      "new HtmlWebpackPlugin": htmlWebpackPluginArr.toString(),
+      entry: entryPath,
+    };
+    const webpackUpdated = webpackFile.replace(/new HtmlWebpackPlugin|entry|goat/gi, function(matched){
+      return mapObj[matched as keyof typeof mapObj];
+    });
 
     updateWebpackFile(webpackPath, webpackUpdated);
   }
