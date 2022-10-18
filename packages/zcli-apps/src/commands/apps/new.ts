@@ -2,6 +2,7 @@ import { FsExtraError, ManifestPath } from './../../types'
 import { Command, Flags, CliUx } from '@oclif/core'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
+import { getWebpackFile, updateWebpackFile } from '../../utils/webpackConfig'
 import * as fs from 'fs'
 import * as fsExtra from 'fs-extra'
 import * as https from 'https'
@@ -82,7 +83,7 @@ export default class New extends Command {
       react: path.join(process.cwd(), directoryName, 'src')
     }
     const manifest = getManifestFile(manifestPath[flagScaffold])
-    
+
     manifest.name = appName
     manifest.author.name = authorName
     manifest.author.email = authorEmail
@@ -108,13 +109,29 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
-  modifyWebpack (directoryName: string) {
-    const webpackPath = path.join(process.cwd(), 'webpack.config.js')
-    const webpackConfig = fs.readFileSync(webpackPath, 'utf8')
-    const newWebpackConfig = webpackConfig.replace(/app\.html/g, 'assets/app.html')
-    fs.writeFileSync(webpackPath, newWebpackConfig)
+  modifyWebpack (directoryName: string, location: string) {
+    const webpackPath = path.join(process.cwd(), directoryName)
+
+    const webpackFile = getWebpackFile(webpackPath)
+
+    const htmlWebpackPlugin =
+      `new HtmlWebpackPlugin({
+			  warning:
+				  "AUTOMATICALLY GENERATED FROM ./src/templates/${location}.html - DO NOT MODIFY THIS FILE DIRECTLY",
+			  vendorCss: externalAssets.css.filter((path) => !!path),
+			  vendorJs: externalAssets.js,
+			  template: "./src/locations/${location}/iframe.html",
+			  filename: "${location}.html",
+		  })`
+
+
+
+    const webpackUpdated = webpackFile.replace("new HtmlWebpackPlugin", htmlWebpackPlugin);
+
+    updateWebpackFile(webpackPath, webpackUpdated);
   }
 
+  // Check location flag for valid locations
   checkLocations (locations: string) {
     const locationsArray = locations.split(',');
     const trimmedLocationsArray = locationsArray.map((location) => location.trim());
@@ -166,6 +183,7 @@ export default class New extends Command {
     }
 
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, location, authorURL )
+    this.modifyWebpack(directoryName, location)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "t",
+  "author": {
+    "name": "t",
+    "email": "t@g.c"
+  },
+  "defaultLocale": "en",
+  "private": true,
+  "location": {
+    "support": {
+      "ticket_sidebar": {
+        "url": "assets/iframe.html",
+        "flexible": true
+      },
+      "top_bar": {
+        "url": "assets/top_bar.html",
+        "flexible": true
+      }
+    }
+  },
+  "version": "1.0",
+  "frameworkVersion": "2.0"
+}
