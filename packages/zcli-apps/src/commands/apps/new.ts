@@ -157,6 +157,17 @@ export default class New extends Command {
     updateWebpackFile(webpackPath, webpackUpdated);
   }
 
+  // Copy location files to new app locations directory depending on user selection
+  // Removes package directory after copying
+  async copyLocationDirectories (directoryName: string, location: string) {
+    location.split(',').map((locationItem) => {
+      const trimmedLocation = locationItem.trim()
+      fsExtra.copySync(path.join(process.cwd(), directoryName, `/packages/${trimmedLocation}`), path.join(process.cwd(), directoryName, `/src/locations/${trimmedLocation}`), { overwrite: true })
+    })
+
+    cleanDirectory(path.join(process.cwd(), directoryName, '/packages'));
+  }
+
   // Check location flag for valid locations
   checkLocations (locations: string) {
     const locationsArray = locations.split(',');
@@ -210,6 +221,7 @@ export default class New extends Command {
 
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, location, authorURL )
     this.modifyWebpack(directoryName, location)
+    this.copyLocationDirectories(directoryName, location)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
