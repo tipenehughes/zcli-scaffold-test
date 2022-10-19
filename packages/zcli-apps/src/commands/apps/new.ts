@@ -176,7 +176,7 @@ export default class New extends Command {
     const locationsArray = locations.split(',');
     const trimmedLocationsArray = locationsArray.map((location) => location.trim());
 
-    const validLocations = ['top_bar', 'nav_bar', 'ticket_sidebar', 'new_ticket_sidebar', 'user_sidebar', 'organization_sidebar', 'modal', 'ticket_editor']
+    const validLocations = ['top_bar', 'nav_bar', 'ticket_sidebar', 'new_ticket_sidebar', 'user_sidebar', 'organization_sidebar', 'modal', 'ticket_editor', 'background']
     const invalidLocations = trimmedLocationsArray.filter((location) => !validLocations.includes(location))
 
     return invalidLocations.length > 0 ? false : true;
