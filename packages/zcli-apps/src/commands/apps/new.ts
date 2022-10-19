@@ -110,7 +110,7 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
-  modifyWebpack (directoryName: string, location: string, flagScaffold: string) {
+  modifyWebpack (directoryName: string, location: string) {
 
     const webpackPath = path.join(process.cwd(), directoryName)
 
@@ -153,7 +153,7 @@ export default class New extends Command {
       "new HtmlWebpackPlugin": htmlWebpackPluginArr.toString(),
       entry: entryPath,
     };
-    const webpackUpdated = webpackFile.replace(/new HtmlWebpackPlugin|entry|goat/gi, function(matched){
+    const webpackUpdated = webpackFile.replace(/new HtmlWebpackPlugin|entry/gi, function(matched){
       return mapObj[matched as keyof typeof mapObj];
     });
 
@@ -188,7 +188,7 @@ export default class New extends Command {
     const flagScaffold = flags.scaffold
 
     let location = "";
-    
+
     if(flagScaffold === 'react') {
       location = flags.location || await CliUx.ux.prompt('Enter the location(s) the app will appear (e.g. ticket_sidebar, top_bar, etc.)')
 
@@ -227,7 +227,7 @@ export default class New extends Command {
     }
 
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, location, authorURL )
-    flagScaffold === 'react' && this.modifyWebpack(directoryName, location, flagScaffold)
+    flagScaffold === 'react' && this.modifyWebpack(directoryName, location)
     flagScaffold === 'react' && this.copyLocationDirectories(directoryName, location)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
