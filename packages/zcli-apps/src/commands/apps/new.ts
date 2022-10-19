@@ -128,6 +128,7 @@ export default class New extends Command {
             "AUTOMATICALLY GENERATED FROM ./src/templates/${trimmedLocation}.html - DO NOT MODIFY THIS FILE DIRECTLY",
           vendorCss: externalAssets.css.filter((path) => !!path),
           vendorJs: externalAssets.js,
+          chunks: ["${trimmedLocation}"],
           template: "./src/locations/${trimmedLocation}/iframe.html",
           filename: "${trimmedLocation}.html",
         })
