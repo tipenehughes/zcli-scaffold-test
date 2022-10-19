@@ -90,7 +90,7 @@ export default class New extends Command {
 
 
     // Create array of locations and add location objects to manifest
-    location.split(',').map((locationItem) => {
+    if(flagScaffold === 'react') {location.split(',').map((locationItem) => {
       const trimmedLocation = locationItem.trim()
       const locationObject = {
         "url": `assets/${trimmedLocation}.html`,
@@ -98,6 +98,7 @@ export default class New extends Command {
       }
       manifest.location.support[trimmedLocation] = locationObject
       });
+    }
 
 
     if (authorURL?.trim()) {
@@ -109,7 +110,8 @@ export default class New extends Command {
     updateManifestFile(manifestPath[flagScaffold], manifest)
   }
 
-  modifyWebpack (directoryName: string, location: string) {
+  modifyWebpack (directoryName: string, location: string, flagScaffold: string) {
+
     const webpackPath = path.join(process.cwd(), directoryName)
 
     const webpackFile = getWebpackFile(webpackPath)
@@ -185,12 +187,16 @@ export default class New extends Command {
     const { flags } = await this.parse(New)
     const flagScaffold = flags.scaffold
 
-    let location = flags.location || await CliUx.ux.prompt('Enter the location(s) the app will appear (e.g. ticket_sidebar, top_bar, etc.)')
-    while (!this.checkLocations(location)) {
-      console.log(chalk.red('Invalid location(s) entered. Please enter a valid location(s).'))
-      location = await CliUx.ux.prompt('Enter the location(s) this app will appear (e.g. ticket_sidebar, top_bar, etc.)')
+    let location = "";
+    
+    if(flagScaffold === 'react') {
+      location = flags.location || await CliUx.ux.prompt('Enter the location(s) the app will appear (e.g. ticket_sidebar, top_bar, etc.)')
+
+      while (!this.checkLocations(location)) {
+        console.log(chalk.red('Invalid location(s) entered. Please enter a valid location(s).'))
+        location = await CliUx.ux.prompt('Enter the location(s) this app will appear (e.g. ticket_sidebar, top_bar, etc.)')
+      }
     }
-    console.log(location);
 
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
@@ -221,8 +227,8 @@ export default class New extends Command {
     }
 
     this.modifyManifest(directoryName, appName, authorName, authorEmail, flagScaffold, location, authorURL )
-    this.modifyWebpack(directoryName, location)
-    this.copyLocationDirectories(directoryName, location)
+    flagScaffold === 'react' && this.modifyWebpack(directoryName, location, flagScaffold)
+    flagScaffold === 'react' && this.copyLocationDirectories(directoryName, location)
     console.log(chalk.green(`Successfully created new project ${directoryName}`))
   }
 }
