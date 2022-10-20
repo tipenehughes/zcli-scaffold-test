@@ -3,6 +3,7 @@ import { Command, Flags, CliUx } from '@oclif/core'
 import { cleanDirectory } from '../../utils/fileUtils'
 import { getManifestFile, updateManifestFile } from '../../utils/manifest'
 import { getWebpackFile, updateWebpackFile } from '../../utils/webpackConfig'
+import { locationArr } from '../../utils/locationArr'
 import * as fs from 'fs'
 import * as fsExtra from 'fs-extra'
 import * as https from 'https'
@@ -90,16 +91,15 @@ export default class New extends Command {
 
 
     // Create array of locations and add location objects to manifest
-    if(flagScaffold === 'react') {location.split(',').map((locationItem) => {
-      const trimmedLocation = locationItem.trim()
-      const locationObject = {
-        "url": `assets/${trimmedLocation}.html`,
-        "flexible": true
-      }
-      manifest.location.support[trimmedLocation] = locationObject
-      });
+    if(flagScaffold === 'react') {
+      locationArr(location).forEach((locationItem) => {
+        const locationObject = {
+          "url": `assets/${locationItem}.html`,
+          "flexible": true
+        }
+        manifest.location.support[locationItem] = locationObject
+      })
     }
-
 
     if (authorURL?.trim()) {
       manifest.author.url = authorURL
@@ -121,21 +121,19 @@ export default class New extends Command {
 
     // Create array of locations, populate templates based on location,
     // push templates to htmlWebpackPluginArr and entryPathArr
-    location.split(',').map((locationItem) => {
-      const trimmedLocation = locationItem.trim()
-
+    locationArr(location).forEach((locationItem) => {
       const htmlWebpackPluginTemplate =
         `new HtmlWebpackPlugin({
           warning:
-            "AUTOMATICALLY GENERATED FROM ./src/templates/${trimmedLocation}.html - DO NOT MODIFY THIS FILE DIRECTLY",
+            "AUTOMATICALLY GENERATED FROM ./src/templates/${locationItem}.html - DO NOT MODIFY THIS FILE DIRECTLY",
           vendorCss: externalAssets.css.filter((path) => !!path),
           vendorJs: externalAssets.js,
-          chunks: ["${trimmedLocation}"],
-          template: "./src/locations/${trimmedLocation}/iframe.html",
-          filename: "${trimmedLocation}.html",
+          chunks: ["${locationItem}"],
+          template: "./src/locations/${locationItem}/iframe.html",
+          filename: "${locationItem}.html",
         })
       `
-      const entryPathTemplate = `${trimmedLocation}: ["./src/locations/${trimmedLocation}/index.js", "./src/index.css"]
+      const entryPathTemplate = `${locationItem}: ["./src/locations/${locationItem}/index.js", "./src/index.css"]
       `
 
       entryPathArr.push(entryPathTemplate)
@@ -163,9 +161,9 @@ export default class New extends Command {
   // Copy location files to new app locations directory depending on user selection
   // Removes package directory after copying
   async copyLocationDirectories (directoryName: string, location: string) {
-    location.split(',').map((locationItem) => {
-      const trimmedLocation = locationItem.trim()
-      fsExtra.copySync(path.join(process.cwd(), directoryName, `/packages/${trimmedLocation}`), path.join(process.cwd(), directoryName, `/src/locations/${trimmedLocation}`), { overwrite: true })
+    locationArr(location).forEach((locationItem) => {
+      console.log(locationItem);
+      fsExtra.copySync(path.join(process.cwd(), directoryName, `/packages/${locationItem}`), path.join(process.cwd(), directoryName, `/src/locations/${locationItem}`), { overwrite: true })
     })
 
     cleanDirectory(path.join(process.cwd(), directoryName, '/packages'));
@@ -173,11 +171,10 @@ export default class New extends Command {
 
   // Check location flag for valid locations
   checkLocations (locations: string) {
-    const locationsArray = locations.split(',');
-    const trimmedLocationsArray = locationsArray.map((location) => location.trim());
+    const locationsArray = locationArr(locations);
 
     const validLocations = ['top_bar', 'nav_bar', 'ticket_sidebar', 'new_ticket_sidebar', 'user_sidebar', 'organization_sidebar', 'modal', 'ticket_editor', 'background']
-    const invalidLocations = trimmedLocationsArray.filter((location) => !validLocations.includes(location))
+    const invalidLocations = locationsArray.filter((location) => !validLocations.includes(location))
 
     return invalidLocations.length > 0 ? false : true;
   }
@@ -197,6 +194,8 @@ export default class New extends Command {
         location = await CliUx.ux.prompt('Enter the location(s) this app will appear (e.g. ticket_sidebar, top_bar, etc.)')
       }
     }
+
+    console.log(locationArr(location));
 
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
