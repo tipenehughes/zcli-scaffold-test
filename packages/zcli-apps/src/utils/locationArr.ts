@@ -1,5 +1,5 @@
 export const locationArr = (location: string) => {
-    // Remove whitespace
+    // Convert string to array and remove whitespace
 	const trimmed = location.split(",").map((locationItem) => {
 		const trimmedLocation = locationItem.trim();
 		return trimmedLocation;

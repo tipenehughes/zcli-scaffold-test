@@ -32,7 +32,7 @@ export default class New extends Command {
   ]
 
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
-  unzippedScaffoldPath = path.join(process.cwd(), 'zcli-react-test-locations-test')
+  unzippedScaffoldPath = path.join(process.cwd(), 'zcli-react-test-basic-react')
   EMAIL_REGEX = /^.+@.+\..+$/
   URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+$/
 
@@ -61,7 +61,7 @@ export default class New extends Command {
   async extractScaffoldIfExists (flagScaffold: string, directoryName: string) {
     return new Promise<void>((resolve, reject) => {
       fsExtra.copy(
-        path.join(process.cwd(), '/', 'zcli-react-test-locations-test'),
+        path.join(process.cwd(), '/', 'zcli-react-test-basic-react', flagScaffold),
         path.join(process.cwd(), directoryName),
         { overwrite: true, errorOnExist: true }, async (err: Error) => {
           await cleanDirectory(this.unzippedScaffoldPath)
@@ -162,7 +162,6 @@ export default class New extends Command {
   // Removes package directory after copying
   async copyLocationDirectories (directoryName: string, location: string) {
     locationArr(location).forEach((locationItem) => {
-      console.log(locationItem);
       fsExtra.copySync(path.join(process.cwd(), directoryName, `/packages/${locationItem}`), path.join(process.cwd(), directoryName, `/src/locations/${locationItem}`), { overwrite: true })
     })
 
@@ -195,8 +194,6 @@ export default class New extends Command {
       }
     }
 
-    console.log(locationArr(location));
-
     const directoryName = flags.path || await CliUx.ux.prompt('Enter a directory name to save the new app (will create the dir if it does not exist)')
     const authorName = flags.authorName || await CliUx.ux.prompt('Enter this app authors name')
     let authorEmail = flags.authorEmail || await CliUx.ux.prompt('Enter this app authors email')
@@ -216,7 +213,7 @@ export default class New extends Command {
 
 
     const appName = flags.appName || await CliUx.ux.prompt('Enter a name for this new app')
-    const scaffoldUrl = 'https://codeload.github.com/tipenehughes/zcli-react-test/zip/locations-test'
+    const scaffoldUrl = 'https://codeload.github.com/tipenehughes/zcli-react-test/zip/basic-react'
 
     try {
       await this.downloadScaffoldsRepo(scaffoldUrl)
