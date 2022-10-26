@@ -65,9 +65,10 @@ describe('apps new', () => {
   describe('--scaffold=react', () => {
     const dirName = 'myDir'
     const dirPath = path.join(process.cwd(), dirName)
+    const location = 'top_bar'
 
     before(async () => {
-      await NewCommand.run(['--scaffold', 'react', '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURL])
+      await NewCommand.run(['--scaffold', 'react', '--location', location, '--path', dirName, '--authorName', authorName, '--authorEmail', authorEmail, '--appName', appName, '--authorURL', authorURL])
     })
 
     after(async () => {
@@ -87,6 +88,7 @@ describe('apps new', () => {
       expect(manifest.author.name).to.eq(authorName)
       expect(manifest.author.email).to.eq(authorEmail)
       expect(manifest.author.url).to.eq(authorURL)
+      expect(manifest.location.support).to.have.own.property(location)
     })
   })
 
