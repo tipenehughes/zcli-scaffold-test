@@ -116,8 +116,8 @@ export default class New extends Command {
 
     const webpackFile = getWebpackFile(webpackPath)
 
-    let htmlWebpackPluginArr: any = [];
-    let entryPathArr: any = [];
+    let htmlWebpackPluginArr: string[] = [];
+    let entryPathArr: string[] = [];
 
     // Create array of locations, populate templates based on location,
     // push templates to htmlWebpackPluginArr and entryPathArr
