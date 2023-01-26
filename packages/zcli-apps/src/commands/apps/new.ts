@@ -32,7 +32,7 @@ export default class New extends Command {
   ]
 
   zipScaffoldPath = path.join(process.cwd(), 'scaffold.zip')
-  unzippedScaffoldPath = path.join(process.cwd(), 'zcli-react-test-basic-react')
+  unzippedScaffoldPath = path.join(process.cwd(), 'original-apps-scaffold-v1-main')
   EMAIL_REGEX = /^.+@.+\..+$/
   URL_REGEX = /^http(s)?:\/\/?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+$/
 
@@ -61,7 +61,7 @@ export default class New extends Command {
   async extractScaffoldIfExists (flagScaffold: string, directoryName: string) {
     return new Promise<void>((resolve, reject) => {
       fsExtra.copy(
-        path.join(process.cwd(), '/', 'zcli-react-test-basic-react', flagScaffold),
+        path.join(process.cwd(), '/', 'original-apps-scaffold-v1-main', flagScaffold),
         path.join(process.cwd(), directoryName),
         { overwrite: true, errorOnExist: true }, async (err: Error) => {
           await cleanDirectory(this.unzippedScaffoldPath)
@@ -126,14 +126,13 @@ export default class New extends Command {
         `new HtmlWebpackPlugin({
           warning:
             "AUTOMATICALLY GENERATED FROM ./src/templates/${locationItem}.html - DO NOT MODIFY THIS FILE DIRECTLY",
-          vendorCss: externalAssets.css.filter((path) => !!path),
           vendorJs: externalAssets.js,
           chunks: ["${locationItem}"],
           template: "./src/locations/${locationItem}/iframe.html",
           filename: "${locationItem}.html",
         })
       `
-      const entryPathTemplate = `${locationItem}: ["./src/locations/${locationItem}/index.js", "./src/index.css"]
+      const entryPathTemplate = `${locationItem}: ["./src/locations/${locationItem}/${locationItem}.js", "./src/index.css"]
       `
 
       entryPathArr.push(entryPathTemplate)
@@ -213,7 +212,7 @@ export default class New extends Command {
 
 
     const appName = flags.appName || await CliUx.ux.prompt('Enter a name for this new app')
-    const scaffoldUrl = 'https://codeload.github.com/tipenehughes/zcli-react-test/zip/basic-react'
+    const scaffoldUrl = 'https://codeload.github.com/tipenehughes/original-apps-scaffold-v1/zip/main'
 
     try {
       await this.downloadScaffoldsRepo(scaffoldUrl)
